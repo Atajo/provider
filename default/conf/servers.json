@@ -1,7 +1,26 @@
-
 {
-  "DEV"      : { "host" : "dev-2-0.core.atajo.co.za",         "protocol" : "http", "port" : 80, "startup" : true },
-  "QAS"      : { "host" : "qas-2-0.core.atajo.co.za",         "protocol" : "http", "port" : 80, "startup" : true },
-  "PRD"      : { "host" : "prd-2-0.core.atajo.co.za",         "protocol" : "http", "port" : 80, "startup" : true },
-  "UPDATE"   : { "host" : "update.atajo.co.za",               "protocol" : "http", "port" : 80, "startup" : false }
+    "DEV": {
+        "host": "dev-1-0-1.core.atajo.co.za",
+        "protocol": "http",
+        "port": 80,
+        "startup": true
+    },
+    "QAS": {
+        "host": "qas-1-0-1.atajo.co.za",
+        "protocol": "https",
+        "port": 443,
+        "startup": true
+    },
+    "PRD": {
+        "host": "prd-1-0-1.atajo.co.za",
+        "protocol": "https",
+        "port": 443,
+        "startup": true
+    },
+    "UPDATE": {
+        "host": "update.atajo.co.za",
+        "protocol": "http",
+        "port": 80,
+        "startup": false
+    }
 }
