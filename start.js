@@ -1,9 +1,10 @@
-require('./lib/atajo.provider').init(function(atajo) {
+require('./lib/atajo.env').init(function() {
 
-    global.atajo = atajo;
+    require('./lib/atajo.provider').init(function(atajo) {
 
-    //atajo.clear();
-    require('./lib/atajo.env').init(function() {
+        global.atajo = atajo;
+
+        //atajo.clear();
         require('./lib/atajo.setup').init(function() {
 
 
@@ -23,14 +24,7 @@ require('./lib/atajo.provider').init(function(atajo) {
                 atajo.io.init(RELEASE, URI);
 
 
-
-
-
-
-            })
-
-
-
+            }); 
 
         });
 
