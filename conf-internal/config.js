@@ -8,7 +8,7 @@ module.exports = {
     },
 
     VERSION: {
-        CHECK: "https://raw.githubusercontent.com/Atajo/Atajo-Provider/master/provider/default/.version",
+        CHECK: "https://raw.githubusercontent.com/Atajo/provider/master/default/.version",
         CHANGELOG: "",
     },
 
