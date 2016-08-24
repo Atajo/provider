@@ -10,21 +10,23 @@ require('./lib/atajo.env').init(function() {
 
             atajo.log.i("STARTING PROVIDER");
 
+
             //GET RELEASE
             atajo.release(function(__RELEASE__, __SERVER__) {
 
                 RELEASE = __RELEASE__;
                 SERVER = __SERVER__;
 
-                URI = SERVER.protocol + '://' + SERVER.host + ':' + SERVER.port;
+                atajo.postInit(RELEASE);
 
+                URI = SERVER.protocol + '://' + SERVER.host + ':' + SERVER.port;
 
                 atajo.log.d("CONNECTING TO : " + URI + " (" + RELEASE + ")");
 
                 atajo.io.init(RELEASE, URI);
 
 
-            }); 
+            });
 
         });
 
