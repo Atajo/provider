@@ -1,6 +1,6 @@
 
 var request = require('request');
-var _log    = require('../../lib/log');
+var _log    = require('../../lib/atajo.log.js');
 
 var https =
 {

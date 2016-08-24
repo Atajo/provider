@@ -1,57 +1,57 @@
-(function(){
-	"use strict";
+(function() {
+    "use strict";
 }());
 
-var _log     = require('../../lib/log');
-var request = require('request');
+var _log = require('../../lib/atajo.log.js');
+var mqtt_lib = require('mqtt');
 
-var _geoserver = {
-	URL_BASE: "https://geo.atajo.co.za/v2",
-	KEYS: require('../../../conf/keys.json'),
+var _mqtt = {
+    CONF: null,
+    CLIENT: null,
+    CONNECTED: false,
 
-	/* query is {uuid:String,from:Date,to:Date}
-	 * CB is passed (err, result)
-	 */
-	getHistory: function (query, CB) { var _ = this;
-		var url = _.URL_BASE + "/location/history";
-		
-		var obj = {
-			query: query
-		};
+    init: function(CB) {
+        var _ = this;
+        try {
+            _.CONF = require('../../../conf/mqtt');
+        } catch (e) {
+            _log.e("COULD NOT REQUIRE MQTT CONFIG. PLEASE ENSURE conf/mqtt.json EXISTS AND IS CONFIGURED");
+            CB(false);
+            return;
+        }
 
-		var headers = {
-			KEY: _.KEYS.CLIENT_KEY,
-			RELEASE: GLOBAL.RELEASE
-		};
+        _.connect(CB);
+    },
 
-		_log.d("GEOSERVER retrieving " + JSON.stringify(obj) + " (" + JSON.stringify(headers) + ") from " + url);
 
-		request({
-			url: url,
-			method: "POST",
-			type: "json",
-			headers: {
-				KEY: _.KEYS.CLIENT_KEY,
-				RELEASE: GLOBAL.RELEASE
-			},
-			json: obj
-		}, function (error, response, body) {
-			if (!error && response.statusCode === 200) {
-				if (!body.error) {
-					CB(false, body);
-				} else {
-					CB(true, body);
-				}
-			} else {
-				_log.d("GEOSERVER error " + error);
-				CB(error, null);
-			}
-		});
-	},
+    connect: function(CB) {
+        var _ = this;
+        _.CLIENT = mqtt_lib.connect(_.CONF.connection_string);
 
-	err: function(msg) {
-		_log.e("GEOSERVER ERROR : " + msg);
-	},
+        _.CLIENT.on('error', _.err);
+
+        _.CLIENT.on("connect", function() {
+            if (_.CONNECTED) {
+                return;
+            }
+
+            _.CONNECTED = true;
+            _log.d("Connected MQTT to " + _.CONF.connection_string);
+
+            CB();
+        });
+
+        process.on('SIGINT', function() {
+            _.CLIENT.end(function() {
+                _log.e('<<<<<<<<<<<<<<<<<<<  MQTT DISCONNECTED  >>>>>>>>>>>>>>>>>>>');
+                process.exit(0);
+            });
+        });
+    },
+
+    err: function(msg) {
+        _log.e("MQTT ERROR : " + msg);
+    },
 };
 
-module.exports = _geoserver;
+module.exports = _mqtt;

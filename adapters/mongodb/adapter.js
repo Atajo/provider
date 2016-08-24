@@ -3,7 +3,7 @@ var os       = require('os');
 var fs       = require('fs');
 var path     = require('path');
 
-var _log     = require('../../lib/log');
+var _log     = require('../../lib/atajo.log.js');
 
 _mongodb = {
 
