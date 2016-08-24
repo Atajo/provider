@@ -2,7 +2,7 @@
 	"use strict";
 }());
 
-var _log     = require('../../lib/atajo.log.js');
+var _log     = require('../../lib/atajo.log.js').init('ADAPTER');
 var mqtt_lib = require('mqtt');
 
 var _mqtt = {
