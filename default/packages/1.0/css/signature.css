@@ -1,0 +1,105 @@
+#atajo-signature {
+    background: #FFF;
+    border-radius: 10px;
+    text-align: justify;
+    margin: 10px;
+    /*border: 1px solid rgba(0,0,0,0.3);*/
+    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+}
+
+#atajo-signature select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    font-size: 8pt;
+    color: black;
+    background: #eee;
+    text-align: center;
+    padding: 10px;
+}
+
+#atajo-signature input {
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    font-size: 8pt;
+    color: black;
+    background: #eee;
+    text-align: center;
+    padding: 10px;
+}
+
+.atajo-signature-Inlay {
+    border: 1px solid #2caac0;
+    border-radius: 5px;
+    font-size: 8pt;
+    text-align: center;
+    background: #eee;
+}
+
+.atajo-signature-InlayContent {
+    padding: 0px;
+}
+
+.atajo-signature-InlayHeader {
+    background: #2caac0;
+    width: 100%;
+    color: white;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.atajo-signature-InlayFooter {
+    background: #2caac0;
+    width: 100%;
+    color: white;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.atajo-signature-Header {
+    background: #363636;
+    width: 100%;
+    color: white;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.atajo-signature-Toggle {
+    width: 100%;
+    color: white;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    border-radius: 5px;
+    padding: 8px;
+}
+
+.atajo-signature-Button {
+    background: #363636;
+    width: 100%;
+    color: white !important;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.atajo-signature-Button td {
+    color: white !important;
+}
