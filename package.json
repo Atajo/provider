@@ -16,6 +16,7 @@
     "moment": "^2.9.0",
     "mongoose": "^4.4.10",
     "ncp": "^1.0.1",
+    "node-mailer": "^0.1.1",
     "node-minify": "^0.12.1",
     "node-sass": "^3.8.0",
     "node-schedule": "^1.2.0",
