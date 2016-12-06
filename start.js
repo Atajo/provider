@@ -2,7 +2,7 @@ require('./lib/atajo.env').init(function() {
 
     require('./lib/atajo.provider').init(function(atajo) {
 
-        global.atajo = atajo;
+        GLOBAL['atajo'] = global.atajo = atajo;
 
         //atajo.clear();
         require('./lib/atajo.setup').init(function() {

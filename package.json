@@ -5,6 +5,7 @@
   "main": "provider/start.js",
   "dependencies": {
     "async": "^1.5.2",
+    "aws-sdk": "^2.7.2",
     "cli-clear": "1.0.2",
     "cli-color": "^0.3.2",
     "express": "^4.11.0",
@@ -21,6 +22,7 @@
     "node-sass": "^3.8.0",
     "node-schedule": "^1.2.0",
     "nodemailer": "^0.7.1",
+    "nodemailer-ses-transport": "^1.5.0",
     "nodemailer-smtp-transport": "^0.1.13",
     "pdfkit": "^0.7.0",
     "progress": "^1.1.8",
