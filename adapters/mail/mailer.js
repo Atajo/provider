@@ -1,6 +1,6 @@
 var nodemailer = require('nodemailer');
 var sesTransport = require('nodemailer-ses-transport');
-var config = require('../../../config/config.json');
+var config = require('../../../conf/config.json');
 var AWS = require('aws-sdk');
 var atajo = { log: require('../../lib/atajo.log').init('ADAPTER:MAIL', 'mailAdapter.log') };
 
