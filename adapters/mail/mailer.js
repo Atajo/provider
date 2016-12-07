@@ -16,6 +16,7 @@ module.exports = {
             return;
         }
 
+        atajo.log.d("USING SES CONFIG : " + JSON.stringify(config.AWS.SES));
 
 
         var ses = new AWS.SES(config.AWS.SES);
