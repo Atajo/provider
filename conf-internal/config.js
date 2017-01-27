@@ -13,6 +13,29 @@ module.exports = {
     },
 
 
+    DEV: {
+        GEO: {
+            URL: 'https://geo.atajo.co.za/v1/',
+
+        }
+    },
+
+    QAS: {
+        GEO: {
+            URL: 'https://geo.atajo.co.za/v1/',
+
+        }
+    },
+
+    PRD: {
+        GEO: {
+            URL: 'https://geo.atajo.co.za/v1/',
+
+        }
+    },
+
+
+
 
 
 

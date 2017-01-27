@@ -1,0 +1,9 @@
+{
+
+    "schemas": "schemas",
+    "host": "",
+
+    "username": false,
+    "password": false
+
+}

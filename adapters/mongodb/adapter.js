@@ -30,6 +30,14 @@ _mongodb = {
 
         }
 
+        if (_.CONF.host == '') {
+
+            _log.e("PLEASE CONFIGURE HOST IN conf/mongodb.json");
+            CB(false);
+            return;
+
+        }
+
 
         _.LOCAL = (typeof LOCAL != 'undefined') ? (LOCAL == 'local' ? true : false) : false;
 
