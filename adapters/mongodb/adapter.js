@@ -24,7 +24,7 @@ _mongodb = {
             _.CONF = require('../../../conf/mongodb');
         } catch (e) {
 
-            _log.e("COULD NOT REQUIRE MONGODB CONFIG. PLEASE ENSURE conf/mongodb.json EXISTS AND IS CONFIGURED");
+            _log.w("COULD NOT REQUIRE MONGODB CONFIG. PLEASE ENSURE conf/mongodb.json EXISTS AND IS CONFIGURED IF YOU WANT TO USE A MONGO DATABASE");
             CB(false);
             return;
 
