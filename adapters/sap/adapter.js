@@ -29,7 +29,7 @@ try {
 var conParams = null;
 
 
-exports.call = function(bapi, obj, cb, commit, at) {
+exports.call = function(bapi, obj, commit, at) {
 
     conParams = config[GLOBAL.RELEASE];
 
@@ -47,7 +47,7 @@ exports.call = function(bapi, obj, cb, commit, at) {
 
     var _worker = Object.create(worker);
 
-    _worker.process(q);
+    return _worker.process(q);
 
 
 
@@ -61,19 +61,77 @@ var worker = {
     process: function(q) {
         var that = this;
 
-        if (typeof q == 'undefined') {
-            return;
-        }
+        return new Promise(function(resolve, reject) {
 
-        var bapi = q.bapi;
-        var obj = q.obj;
-        var commit = q.commit;
-        var cb = q.cb;
-        var at = (typeof q.at == 'undefined') ? false : q.at;
+            if (!q) {
+                return reject({ status: 0, message: "INVALID REQUEST", result: "" });
+            } else if (!q.babi) {
+                return reject({ status: 0, message: "INVALID REQUEST - NO BAPI NAME SET", result: "" });
+            } else if (!q.obj) {
+                return reject({ status: 0, message: "INVALID REQUEST - NO BAPI DATA SET", result: "" });
+            }
 
-        //if(typeof BAPIS[bapi] == 'undefined') { return; }
+            var bapi = q.bapi;
+            var obj = q.obj;
+            var commit = q.commit;
+            //var at = (typeof q.at == 'undefined') ? false : q.at;
 
-        that.call(q);
+            that.client = new rfc.Client(conParams);
+            atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj).substring(0, 50) + "... USING RFC " + that.client.getVersion());
+
+
+            that.client.connect(function(err) {
+                if (err) { // check for login/connection errors
+                    return reject({ status: 0, message: "ERROR CONNECTING TO SAP BACKEND @ " + conParams.ashost, result: err });
+                }
+
+                // invoke remote enabled ABAP function module
+                client.invoke(bapi,
+                    obj,
+                    function(err, result) {
+                        if (err) { // check for errors (e.g. wrong parameters)
+                            return reject({ status: 0, message: "ERROR INVOKING RFC FOR " + bapi, result: err });
+                        }
+
+                        atajo.log.d('====== RESULT FOR BAPI ' + bapi + ' IS ================');
+                        atajo.log.d(JSON.stringify(result).substring(0, 100) + '...');
+                        atajo.log.d('===================================================');
+
+                        if (commit) {
+                            atajo.log.d("TRANSACTION COMMIT");
+                            var _bapi = "BAPI_TRANSACTION_COMMIT";
+                            var _obj = { WAIT: 'X' }
+
+                            client.invoke(_bapi,
+                                _obj,
+                                function(err, commitResult) {
+
+                                    if (err) {
+                                        reject({ status: 0, message: "COMMIT FAILED : " + err, result: result, commitResult: false });
+                                    } else {
+                                        resolve({ status: 1, message: "COMMIT SUCCESS", result: result, commitresult: commitResult });
+                                    }
+
+                                });
+                        } else {
+                            atajo.log.d("SENDING RESULT");
+                            resolve({ status: 1, message: "TRANSACTION SUCCESS", result: result });
+
+                        }
+
+                    });
+
+
+            });
+
+
+
+
+
+
+        });
+
+
 
         /*
                 if (at) {
@@ -88,71 +146,6 @@ var worker = {
                 }
         */
     },
-
-    call: function(q) {
-        var that = this;
-
-        var bapi = q.bapi;
-        var obj = q.obj;
-        var commit = q.commit;
-        var cb = q.cb;
-        var at = (typeof q.at == 'undefined') ? false : q.at;
-
-
-        that.client = new rfc.Client(conParams);
-        atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj).substring(0, 50) + "... USING RFC " + that.client.getVersion());
-
-
-        that.client.connect(function(err) {
-            if (err) { // check for login/connection errors
-                return cb({ status: 0, message: "ERROR CONNECTING TO SAP BACKEND @ " + conParams.ashost, result: err });
-            }
-
-            // invoke remote enabled ABAP function module
-            client.invoke(bapi,
-                obj,
-                function(err, result) {
-                    if (err) { // check for errors (e.g. wrong parameters)
-                        return cb({ status: 0, message: "ERROR INVOKING RFC FOR " + bapi, result: err });
-                    }
-
-                    atajo.log.d('====== RESULT FOR BAPI ' + bapi + ' IS ================');
-                    atajo.log.d(JSON.stringify(result).substring(0, 100) + '...');
-                    atajo.log.d('===================================================');
-
-                    if (commit) {
-                        atajo.log.d("TRANSACTION COMMIT");
-                        cmd = "BAPI_TRANSACTION_COMMIT";
-                        obj = { WAIT: 'X' }
-                        func = that.con.Lookup(cmd);
-
-                        client.invoke(cmd,
-                            obj,
-                            function(err, result) {
-
-                                if (err) {
-                                    cb({ status: 0, message: "COMMIT FAILED : " + err });
-                                } else {
-                                    cb({ status: 1, message: "COMMIT SUCCESS", result: result, commitresult: commitResult });
-                                }
-
-                            });
-                    } else {
-                        atajo.log.d("SENDING RESULT");
-                        cb({ status: 1, message: "TRANSACTION SUCCESS", result: result });
-
-                    }
-
-                });
-
-
-        });
-
-
-
-
-    },
-
 
 
 
