@@ -1,4 +1,7 @@
-"use strict";
+var atajo = {
+    log: require('../../lib/atajo.log').init('SAP ADAPTER', 'sapAdapter.log')
+}
+
 
 
 try {
