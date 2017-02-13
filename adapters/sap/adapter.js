@@ -2,153 +2,155 @@ var atajo = {
     log: require('../../lib/atajo.log').init('SAP ADAPTER', 'sapAdapter.log')
 }
 
+var rfc = null;
+var config = null;
 
 
-try {
+var adapter = {
 
-    var rfc = require('node-rfc');
+    CONNECTION_PARAMETERS: null,
 
-} catch (e) {
-
-    atajo.log.e("SAP ADAPTER: COULD NOT FIND SAP NODE-RFC.")
-    return
-
-}
-
-try {
-
-    var config = require('../../../conf/sap.json');
-
-} catch (e) {
-
-    atajo.log.e("SAP ADAPTER: COULD NOT FIND CONF/SAP.JSON")
-    return
-
-}
+    init: function() {
 
 
+        try {
+
+            rfc = require('node-rfc');
+
+        } catch (e) {
+
+            atajo.log.e("SAP ADAPTER: COULD NOT FIND SAP NODE-RFC.")
+            return;
+
+        }
+
+        try {
+
+            config = require('../../../conf/sap.json');
+
+        } catch (e) {
+
+            atajo.log.e("SAP ADAPTER: COULD NOT FIND CONF/SAP.JSON")
+            return;
+
+        }
 
 
-var conParams = null;
+        this.CONNECTION_PARAMETERS = config[GLOBAL.RELEASE];
+
+        return this;
+
+    },
+
+    call: function(bapi, obj, commit, at) {
+
+        at = at || new Date().getTime();
+        commit = commit || false;
+
+        var qry = { bapi: bapi, obj: obj, cb: cb, commit: commit, at: at }
 
 
-exports.call = function(bapi, obj, commit, at) {
+        var _worker = Object.create(worker);
 
-    conParams = config[GLOBAL.RELEASE];
-
-    if (typeof conParams == 'undefined' || conParams == null) {
-        cb({ status: 0, message: "CONNECTION PARAMETERS NOT SET. CALL INIT FIRST.", result: false });
-        return;
-    }
-
-    if (typeof at == 'undefined') { at = new Date().getTime(); }
-    if (typeof commit == 'undefined') { commit = false; }
-
-
-    q = { bapi: bapi, obj: obj, cb: cb, commit: commit, at: at }
-
-
-    var _worker = Object.create(worker);
-
-    return _worker.process(q);
+        return _worker.process(qry);
 
 
 
-}
+    },
 
 
-var worker = {
+    worker: {
 
-    client: null,
+        client: null,
 
-    process: function(q) {
-        var that = this;
+        process: function(q) {
+            var that = this;
 
-        return new Promise(function(resolve, reject) {
+            return new Promise(function(resolve, reject) {
 
-            if (!q) {
-                return reject({ status: 0, message: "INVALID REQUEST", result: "" });
-            } else if (!q.babi) {
-                return reject({ status: 0, message: "INVALID REQUEST - NO BAPI NAME SET", result: "" });
-            } else if (!q.obj) {
-                return reject({ status: 0, message: "INVALID REQUEST - NO BAPI DATA SET", result: "" });
-            }
-
-            var bapi = q.bapi;
-            var obj = q.obj;
-            var commit = q.commit;
-            //var at = (typeof q.at == 'undefined') ? false : q.at;
-
-            that.client = new rfc.Client(conParams);
-            atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj).substring(0, 50) + "... USING RFC " + that.client.getVersion());
-
-
-            that.client.connect(function(err) {
-                if (err) { // check for login/connection errors
-                    return reject({ status: 0, message: "ERROR CONNECTING TO SAP BACKEND @ " + conParams.ashost, result: err });
+                if (!q) {
+                    return reject({ status: 0, message: "INVALID REQUEST", result: "" });
+                } else if (!q.babi) {
+                    return reject({ status: 0, message: "INVALID REQUEST - NO BAPI NAME SET", result: "" });
+                } else if (!q.obj) {
+                    return reject({ status: 0, message: "INVALID REQUEST - NO BAPI DATA SET", result: "" });
                 }
 
-                // invoke remote enabled ABAP function module
-                client.invoke(bapi,
-                    obj,
-                    function(err, result) {
-                        if (err) { // check for errors (e.g. wrong parameters)
-                            return reject({ status: 0, message: "ERROR INVOKING RFC FOR " + bapi, result: err });
-                        }
+                var bapi = q.bapi;
+                var obj = q.obj;
+                var commit = q.commit;
+                //var at = (typeof q.at == 'undefined') ? false : q.at;
 
-                        atajo.log.d('====== RESULT FOR BAPI ' + bapi + ' IS ================');
-                        atajo.log.d(JSON.stringify(result).substring(0, 100) + '...');
-                        atajo.log.d('===================================================');
+                that.client = new rfc.Client(conParams);
+                atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj).substring(0, 50) + "... USING RFC " + that.client.getVersion());
 
-                        if (commit) {
-                            atajo.log.d("TRANSACTION COMMIT");
-                            var _bapi = "BAPI_TRANSACTION_COMMIT";
-                            var _obj = { WAIT: 'X' }
 
-                            client.invoke(_bapi,
-                                _obj,
-                                function(err, commitResult) {
+                that.client.connect(function(err) {
+                    if (err) { // check for login/connection errors
+                        return reject({ status: 0, message: "ERROR CONNECTING TO SAP BACKEND @ " + conParams.ashost, result: err });
+                    }
 
-                                    if (err) {
-                                        reject({ status: 0, message: "COMMIT FAILED : " + err, result: result, commitResult: false });
-                                    } else {
-                                        resolve({ status: 1, message: "COMMIT SUCCESS", result: result, commitresult: commitResult });
-                                    }
+                    // invoke remote enabled ABAP function module
+                    client.invoke(bapi,
+                        obj,
+                        function(err, result) {
+                            if (err) { // check for errors (e.g. wrong parameters)
+                                return reject({ status: 0, message: "ERROR INVOKING RFC FOR " + bapi, result: err });
+                            }
 
-                                });
-                        } else {
-                            atajo.log.d("SENDING RESULT");
-                            resolve({ status: 1, message: "TRANSACTION SUCCESS", result: result });
+                            atajo.log.d('====== RESULT FOR BAPI ' + bapi + ' IS ================');
+                            atajo.log.d(JSON.stringify(result).substring(0, 100) + '...');
+                            atajo.log.d('===================================================');
 
-                        }
+                            if (commit) {
+                                atajo.log.d("TRANSACTION COMMIT");
+                                var _bapi = "BAPI_TRANSACTION_COMMIT";
+                                var _obj = { WAIT: 'X' }
 
-                    });
+                                client.invoke(_bapi,
+                                    _obj,
+                                    function(err, commitResult) {
+
+                                        if (err) {
+                                            reject({ status: 0, message: "COMMIT FAILED : " + err, result: result, commitResult: false });
+                                        } else {
+                                            resolve({ status: 1, message: "COMMIT SUCCESS", result: result, commitresult: commitResult });
+                                        }
+
+                                    });
+                            } else {
+                                atajo.log.d("SENDING RESULT");
+                                resolve({ status: 1, message: "TRANSACTION SUCCESS", result: result });
+
+                            }
+
+                        });
+
+
+                });
+
+
+
+
 
 
             });
 
 
 
+            /*
+                    if (at) {
 
+                        now = new Date().getTime();
+                        delay = parseInt(at) - parseInt(now);
+                        atajo.log.d("CALL TO " + bapi + " DELAYED - CALLING IN " + delay + "ms");
+                        if (delay > 0) { setTimeout(function() { that.call(q); }, delay); } else { that.call(q); }
 
-
-        });
-
-
-
-        /*
-                if (at) {
-
-                    now = new Date().getTime();
-                    delay = parseInt(at) - parseInt(now);
-                    atajo.log.d("CALL TO " + bapi + " DELAYED - CALLING IN " + delay + "ms");
-                    if (delay > 0) { setTimeout(function() { that.call(q); }, delay); } else { that.call(q); }
-
-                } else {
-                    that.call(q);
-                }
-        */
-    },
+                    } else {
+                        that.call(q);
+                    }
+            */
+        },
 
 
 
@@ -156,11 +158,6 @@ var worker = {
 
 
 
-
-
-
-
-
-
+    }
 
 }
