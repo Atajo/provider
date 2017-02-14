@@ -11,7 +11,9 @@ var adapter = {
     CONNECTION_PARAMETERS: null,
 
     init: function() {
-
+	
+        console.log("INIT SAP"); 
+	atajo.log.d("INITIALIZING SAP ADAPTER"); 
 
         try {
 
@@ -30,7 +32,7 @@ var adapter = {
 
         } catch (e) {
 
-            atajo.log.e("SAP ADAPTER: COULD NOT FIND CONF/SAP.JSON")
+            atajo.log.e("SAP ADAPTER: COULD NOT PARSE CONF/SAP.JSON : "+e)
             return;
 
         }
@@ -42,15 +44,16 @@ var adapter = {
 
     },
 
-    call: function(bapi, obj, commit, at) {
-
+    query: function(bapi, obj, commit, at) {
+         
+         
         at = at || new Date().getTime();
         commit = commit || false;
 
-        var qry = { bapi: bapi, obj: obj, cb: cb, commit: commit, at: at }
+        var qry = { bapi: bapi, obj: obj, commit: commit, at: at }
 
 
-        var _worker = Object.create(worker);
+        var _worker = Object.create(adapter.worker);
 
         return _worker.process(qry);
 
@@ -70,7 +73,7 @@ var adapter = {
 
                 if (!q) {
                     return reject({ status: 0, message: "INVALID REQUEST", result: "" });
-                } else if (!q.babi) {
+                } else if (!q.bapi) {
                     return reject({ status: 0, message: "INVALID REQUEST - NO BAPI NAME SET", result: "" });
                 } else if (!q.obj) {
                     return reject({ status: 0, message: "INVALID REQUEST - NO BAPI DATA SET", result: "" });
@@ -78,10 +81,11 @@ var adapter = {
 
                 var bapi = q.bapi;
                 var obj = q.obj;
-                var commit = q.commit;
+                var commit = q.commit ; 
                 //var at = (typeof q.at == 'undefined') ? false : q.at;
 
-                that.client = new rfc.Client(conParams);
+                that.client = new rfc.Client(adapter.CONNECTION_PARAMETERS);
+  		atajo.log.d("CONNECTION PARAMETERS ARE : "+JSON.stringify(adapter.CONNECTION_PARAMETERS)); 
                 atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj).substring(0, 50) + "... USING RFC " + that.client.getVersion());
 
 
@@ -91,7 +95,7 @@ var adapter = {
                     }
 
                     // invoke remote enabled ABAP function module
-                    client.invoke(bapi,
+                    that.client.invoke(bapi,
                         obj,
                         function(err, result) {
                             if (err) { // check for errors (e.g. wrong parameters)
@@ -161,3 +165,5 @@ var adapter = {
     }
 
 }
+
+module.exports = adapter; 
