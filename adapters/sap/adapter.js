@@ -11,9 +11,9 @@ var adapter = {
     CONNECTION_PARAMETERS: null,
 
     init: function() {
-	
-        console.log("INIT SAP"); 
-	atajo.log.d("INITIALIZING SAP ADAPTER"); 
+
+        console.log("INIT SAP");
+        atajo.log.d("INITIALIZING SAP ADAPTER");
 
         try {
 
@@ -32,7 +32,7 @@ var adapter = {
 
         } catch (e) {
 
-            atajo.log.e("SAP ADAPTER: COULD NOT PARSE CONF/SAP.JSON : "+e)
+            atajo.log.e("SAP ADAPTER: COULD NOT PARSE CONF/SAP.JSON : " + e)
             return;
 
         }
@@ -45,8 +45,8 @@ var adapter = {
     },
 
     query: function(bapi, obj, commit, at) {
-         
-         
+
+
         at = at || new Date().getTime();
         commit = commit || false;
 
@@ -81,16 +81,17 @@ var adapter = {
 
                 var bapi = q.bapi;
                 var obj = q.obj;
-                var commit = q.commit ; 
+                var commit = q.commit;
                 //var at = (typeof q.at == 'undefined') ? false : q.at;
 
                 that.client = new rfc.Client(adapter.CONNECTION_PARAMETERS);
-  		atajo.log.d("CONNECTION PARAMETERS ARE : "+JSON.stringify(adapter.CONNECTION_PARAMETERS)); 
+                atajo.log.d("CONNECTION PARAMETERS ARE : " + JSON.stringify(adapter.CONNECTION_PARAMETERS));
                 atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj).substring(0, 50) + "... USING RFC " + that.client.getVersion());
 
 
                 that.client.connect(function(err) {
                     if (err) { // check for login/connection errors
+                        atajo.log.e("SAP CLIENT CONNECT ERROR : " + err);
                         return reject({ status: 0, message: "ERROR CONNECTING TO SAP BACKEND @ " + conParams.ashost, result: err });
                     }
 
@@ -99,12 +100,15 @@ var adapter = {
                         obj,
                         function(err, result) {
                             if (err) { // check for errors (e.g. wrong parameters)
+                                atajo.log.e("SAP CLIENT INVOKE ERROR : " + err);
+
+                                atajo.log.e(JSON.stringify(obj));
                                 return reject({ status: 0, message: "ERROR INVOKING RFC FOR " + bapi, result: err });
                             }
 
-                            atajo.log.d('====== RESULT FOR BAPI ' + bapi + ' IS ================');
+                            atajo.log.d('====== RESULT FOR BAPI ' + bapi + ' IS ==========================');
                             atajo.log.d(JSON.stringify(result).substring(0, 100) + '...');
-                            atajo.log.d('===================================================');
+                            atajo.log.d('================================================================================');
 
                             if (commit) {
                                 atajo.log.d("TRANSACTION COMMIT");
@@ -116,6 +120,7 @@ var adapter = {
                                     function(err, commitResult) {
 
                                         if (err) {
+                                            atajo.log.e("SAP CLIENT [COMMIT] INVOKE ERROR : " + err);
                                             reject({ status: 0, message: "COMMIT FAILED : " + err, result: result, commitResult: false });
                                         } else {
                                             resolve({ status: 1, message: "COMMIT SUCCESS", result: result, commitresult: commitResult });
@@ -166,4 +171,4 @@ var adapter = {
 
 }
 
-module.exports = adapter; 
+module.exports = adapter;
