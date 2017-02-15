@@ -23,9 +23,9 @@ module.exports = {
 
         atajo.log.d("SENDING MAIL WITH OPTIONS : " + JSON.stringify(options));
 
+        options.transport = transport; 
 
-
-        transport.sendMail(options, function(error, info) {
+        nodemailer.sendMail(options, function(error, info) {
             if (error) {
                 atajo.log.d("MAIL ERROR : " + error);
                 cb(false);
