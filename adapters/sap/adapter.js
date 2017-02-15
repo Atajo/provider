@@ -85,7 +85,7 @@ var adapter = {
                 var commit = q.commit;
                 that.client = new rfc.Connection;
                 atajo.log.d("CONNECTION PARAMETERS ARE : " + JSON.stringify(adapter.CONNECTION_PARAMETERS));
-                atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj));
+                atajo.log.d("CALLING BAPI " + bapi + " (COMMIT : " + commit + ") WITH DATA : " + JSON.stringify(obj).substring(0, 100) + '...');
 
                 that.client.Open(adapter.CONNECTION_PARAMETERS, function(err) {
                     //that.client.connect(function(err) {
@@ -126,9 +126,7 @@ var adapter = {
 
                                 });
                         } else {
-                            atajo.log.d("SENDING RESULT");
                             resolve({ status: 1, message: "TRANSACTION SUCCESS", result: result });
-
                         }
 
                     });
