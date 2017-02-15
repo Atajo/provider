@@ -84,7 +84,7 @@ var adapter = {
                 var obj = q.obj;
                 var commit = q.commit;
                 //var at = (typeof q.at == 'undefined') ? false : q.at;
-                that.client = new sapnwrfc.Connection;
+                that.client = new rfc.Connection;
                 //that.client = new rfc.Client(adapter.CONNECTION_PARAMETERS);
                 atajo.log.d("CONNECTION PARAMETERS ARE : " + JSON.stringify(adapter.CONNECTION_PARAMETERS));
                 atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj) + "... USING RFC " + that.client.getVersion());
