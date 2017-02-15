@@ -112,14 +112,9 @@ var adapter = {
                             atajo.log.d("TRANSACTION COMMIT");
                             bapi = "BAPI_TRANSACTION_COMMIT";
                             obj = { WAIT: 'X' }
-                            atajo.log.d("TRANSACTION COMMIT");
 
                             func = that.client.Lookup(bapi);
-                            atajo.log.d("TRANSACTION COMMIT");
-
-                            func.Invoke(obj, function(err, result) {
-
-                                atajo.log.d("TRANSACTION COMMIT RETURNED " + err + " / " + JSON.stringify(result));
+                            func.Invoke(obj, function(err, commitResult) {
 
                                 if (err) {
                                     atajo.log.e("SAP CLIENT [COMMIT] INVOKE ERROR : " + err);
