@@ -16,7 +16,9 @@ var adapter = {
 
         try {
 
-            rfc = require('node-rfc');
+            //rfc = require('node-rfc');
+            rfc = require('sapnwrfc');
+
 
         } catch (e) {
 
@@ -82,56 +84,57 @@ var adapter = {
                 var obj = q.obj;
                 var commit = q.commit;
                 //var at = (typeof q.at == 'undefined') ? false : q.at;
-
-                that.client = new rfc.Client(adapter.CONNECTION_PARAMETERS);
+                that.client = new sapnwrfc.Connection;
+                //that.client = new rfc.Client(adapter.CONNECTION_PARAMETERS);
                 atajo.log.d("CONNECTION PARAMETERS ARE : " + JSON.stringify(adapter.CONNECTION_PARAMETERS));
                 atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj) + "... USING RFC " + that.client.getVersion());
 
-
-                that.client.connect(function(err) {
+                that.client.Open(adapter.CONNECTION_PARAMETERS, function(err) {
+                    //that.client.connect(function(err) {
                     if (err) { // check for login/connection errors
                         atajo.log.e("SAP CLIENT CONNECT ERROR : " + err);
                         return reject({ status: 0, message: "ERROR CONNECTING TO SAP BACKEND @ " + conParams.ashost, result: err });
                     }
 
-                    that.client.invoke(bapi,
-                        obj,
-                        function(err, result) {
-                            if (err) { // check for errors (e.g. wrong parameters)
-                                atajo.log.e("SAP CLIENT INVOKE ERROR : " + JSON.stringify(err) + "/" + JSON.stringify(result));
+                    var func = that.client.Lookup(bapi);
 
-                                atajo.log.e(JSON.stringify(obj));
-                                return reject({ status: 0, message: "ERROR INVOKING RFC FOR " + bapi, result: err });
-                            }
+                    func.Invoke(obj, function(err, result) {
+                        //that.client.invoke(bapi, obj, function(err, result) {
+                        if (err) { // check for errors (e.g. wrong parameters)
+                            atajo.log.e("SAP CLIENT INVOKE ERROR : " + JSON.stringify(err) + "/" + JSON.stringify(result));
 
-                            atajo.log.d('====== RESULT FOR BAPI ' + bapi + ' IS ==========================');
-                            atajo.log.d(JSON.stringify(result).substring(0, 100) + '...');
-                            atajo.log.d('================================================================================');
+                            atajo.log.e(JSON.stringify(obj));
+                            return reject({ status: 0, message: "ERROR INVOKING RFC FOR " + bapi, result: err });
+                        }
 
-                            if (commit) {
-                                atajo.log.d("TRANSACTION COMMIT");
-                                var _bapi = "BAPI_TRANSACTION_COMMIT";
-                                var _obj = { WAIT: 'X' }
+                        atajo.log.d('====== RESULT FOR BAPI ' + bapi + ' IS ==========================');
+                        atajo.log.d(JSON.stringify(result).substring(0, 100) + '...');
+                        atajo.log.d('================================================================================');
 
-                                client.invoke(_bapi,
-                                    _obj,
-                                    function(err, commitResult) {
+                        if (commit) {
+                            atajo.log.d("TRANSACTION COMMIT");
+                            var _bapi = "BAPI_TRANSACTION_COMMIT";
+                            var _obj = { WAIT: 'X' }
 
-                                        if (err) {
-                                            atajo.log.e("SAP CLIENT [COMMIT] INVOKE ERROR : " + err);
-                                            reject({ status: 0, message: "COMMIT FAILED : " + err, result: result, commitResult: false });
-                                        } else {
-                                            resolve({ status: 1, message: "COMMIT SUCCESS", result: result, commitresult: commitResult });
-                                        }
+                            client.invoke(_bapi,
+                                _obj,
+                                function(err, commitResult) {
 
-                                    });
-                            } else {
-                                atajo.log.d("SENDING RESULT");
-                                resolve({ status: 1, message: "TRANSACTION SUCCESS", result: result });
+                                    if (err) {
+                                        atajo.log.e("SAP CLIENT [COMMIT] INVOKE ERROR : " + err);
+                                        reject({ status: 0, message: "COMMIT FAILED : " + err, result: result, commitResult: false });
+                                    } else {
+                                        resolve({ status: 1, message: "COMMIT SUCCESS", result: result, commitresult: commitResult });
+                                    }
 
-                            }
+                                });
+                        } else {
+                            atajo.log.d("SENDING RESULT");
+                            resolve({ status: 1, message: "TRANSACTION SUCCESS", result: result });
 
-                        });
+                        }
+
+                    });
 
 
                 });
