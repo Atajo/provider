@@ -84,7 +84,7 @@ var adapter = {
                 var obj = q.obj;
                 var commit = q.commit;
                 that.client = new rfc.Connection;
-                atajo.log.d("CONNECTION PARAMETERS ARE : " + JSON.stringify(adapter.CONNECTION_PARAMETERS));
+                //atajo.log.d("CONNECTION PARAMETERS ARE : " + JSON.stringify(adapter.CONNECTION_PARAMETERS));
                 atajo.log.d("CALLING BAPI " + bapi + " (COMMIT : " + commit + ") WITH DATA : " + JSON.stringify(obj).substring(0, 100) + '...');
 
                 that.client.Open(adapter.CONNECTION_PARAMETERS, function(err) {
