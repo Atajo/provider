@@ -119,6 +119,8 @@ var adapter = {
 
                             func.Invoke(obj, function(err, result) {
 
+                                atajo.log.d("TRANSACTION COMMIT RETURNED " + err + " / " + JSON.stringify(result));
+
                                 if (err) {
                                     atajo.log.e("SAP CLIENT [COMMIT] INVOKE ERROR : " + err);
                                     reject({ status: 0, message: "COMMIT FAILED : " + err, result: result, commitResult: false });
