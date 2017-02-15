@@ -87,7 +87,8 @@ var adapter = {
                 that.client = new rfc.Connection;
                 //that.client = new rfc.Client(adapter.CONNECTION_PARAMETERS);
                 atajo.log.d("CONNECTION PARAMETERS ARE : " + JSON.stringify(adapter.CONNECTION_PARAMETERS));
-                atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj) + "... USING RFC " + that.client.getVersion());
+                //      atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj) + "... USING RFC " + that.client.getVersion());
+                atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj));
 
                 that.client.Open(adapter.CONNECTION_PARAMETERS, function(err) {
                     //that.client.connect(function(err) {
