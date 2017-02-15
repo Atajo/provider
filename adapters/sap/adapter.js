@@ -110,12 +110,14 @@ var adapter = {
 
                         if (commit) {
                             atajo.log.d("TRANSACTION COMMIT");
-                            var _bapi = "BAPI_TRANSACTION_COMMIT";
-                            var _obj = { WAIT: 'X' }
+                            bapi = "BAPI_TRANSACTION_COMMIT";
+                            obj = { WAIT: 'X' }
+                            atajo.log.d("TRANSACTION COMMIT");
 
-                            var func = that.client.Lookup(_bapi);
+                            func = that.client.Lookup(bapi);
+                            atajo.log.d("TRANSACTION COMMIT");
 
-                            func.Invoke(_obj, function(err, result) {
+                            func.Invoke(obj, function(err, result) {
 
                                 if (err) {
                                     atajo.log.e("SAP CLIENT [COMMIT] INVOKE ERROR : " + err);
