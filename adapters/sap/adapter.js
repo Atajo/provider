@@ -12,7 +12,6 @@ var adapter = {
 
     init: function() {
 
-        console.log("INIT SAP");
         atajo.log.d("INITIALIZING SAP ADAPTER");
 
         try {
@@ -86,7 +85,7 @@ var adapter = {
 
                 that.client = new rfc.Client(adapter.CONNECTION_PARAMETERS);
                 atajo.log.d("CONNECTION PARAMETERS ARE : " + JSON.stringify(adapter.CONNECTION_PARAMETERS));
-                atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj).substring(0, 50) + "... USING RFC " + that.client.getVersion());
+                atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj) + "... USING RFC " + that.client.getVersion());
 
 
                 that.client.connect(function(err) {
@@ -95,12 +94,11 @@ var adapter = {
                         return reject({ status: 0, message: "ERROR CONNECTING TO SAP BACKEND @ " + conParams.ashost, result: err });
                     }
 
-                    // invoke remote enabled ABAP function module
                     that.client.invoke(bapi,
                         obj,
                         function(err, result) {
                             if (err) { // check for errors (e.g. wrong parameters)
-                                atajo.log.e("SAP CLIENT INVOKE ERROR : " + err);
+                                atajo.log.e("SAP CLIENT INVOKE ERROR : " + JSON.stringify(err) + "/" + JSON.stringify(result));
 
                                 atajo.log.e(JSON.stringify(obj));
                                 return reject({ status: 0, message: "ERROR INVOKING RFC FOR " + bapi, result: err });
