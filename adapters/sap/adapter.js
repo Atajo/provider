@@ -113,18 +113,18 @@ var adapter = {
                             var _bapi = "BAPI_TRANSACTION_COMMIT";
                             var _obj = { WAIT: 'X' }
 
-                            client.invoke(_bapi,
-                                _obj,
-                                function(err, commitResult) {
+                            var func = that.client.Lookup(_bapi);
 
-                                    if (err) {
-                                        atajo.log.e("SAP CLIENT [COMMIT] INVOKE ERROR : " + err);
-                                        reject({ status: 0, message: "COMMIT FAILED : " + err, result: result, commitResult: false });
-                                    } else {
-                                        resolve({ status: 1, message: "COMMIT SUCCESS", result: result, commitresult: commitResult });
-                                    }
+                            func.Invoke(_obj, function(err, result) {
 
-                                });
+                                if (err) {
+                                    atajo.log.e("SAP CLIENT [COMMIT] INVOKE ERROR : " + err);
+                                    reject({ status: 0, message: "COMMIT FAILED : " + err, result: result, commitResult: false });
+                                } else {
+                                    resolve({ status: 1, message: "COMMIT SUCCESS", result: result, commitresult: commitResult });
+                                }
+
+                            });
                         } else {
                             resolve({ status: 1, message: "TRANSACTION SUCCESS", result: result });
                         }
