@@ -83,11 +83,8 @@ var adapter = {
                 var bapi = q.bapi;
                 var obj = q.obj;
                 var commit = q.commit;
-                //var at = (typeof q.at == 'undefined') ? false : q.at;
                 that.client = new rfc.Connection;
-                //that.client = new rfc.Client(adapter.CONNECTION_PARAMETERS);
                 atajo.log.d("CONNECTION PARAMETERS ARE : " + JSON.stringify(adapter.CONNECTION_PARAMETERS));
-                //      atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj) + "... USING RFC " + that.client.getVersion());
                 atajo.log.d("CALLING BAPI " + bapi + " WITH DATA : " + JSON.stringify(obj));
 
                 that.client.Open(adapter.CONNECTION_PARAMETERS, function(err) {
@@ -100,7 +97,6 @@ var adapter = {
                     var func = that.client.Lookup(bapi);
 
                     func.Invoke(obj, function(err, result) {
-                        //that.client.invoke(bapi, obj, function(err, result) {
                         if (err) { // check for errors (e.g. wrong parameters)
                             atajo.log.e("SAP CLIENT INVOKE ERROR : " + JSON.stringify(err) + "/" + JSON.stringify(result));
 
