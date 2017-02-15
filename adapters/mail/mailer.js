@@ -25,7 +25,7 @@ module.exports = {
 
 
 
-        transporter.sendMail(options, function(error, info) {
+        transport.sendMail(options, function(error, info) {
             if (error) {
                 atajo.log.d("MAIL ERROR : " + error);
                 cb(false);
