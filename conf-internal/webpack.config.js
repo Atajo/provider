@@ -7,12 +7,12 @@ module.exports = {
     output: {
         filename: 'bundle.js'
     },
-    plugins: [
-        new webpackUglifyJsPlugin({
-            minimize: true,
-            cacheFolder: path.resolve(__dirname, '../', '../', 'cache', 'cached_uglify'),
-        })
-    ],
+    /* plugins: [
+         new webpackUglifyJsPlugin({
+             minimize: false,
+             cacheFolder: path.resolve(__dirname, '../', '../', 'cache', 'cached_uglify'),
+         }) 
+     ], */
     resolve: {
         extensions: ['.webpack.js', '.web.js', '.ts', '.js']
     },
