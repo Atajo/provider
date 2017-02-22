@@ -1,10 +1,7 @@
-var _log = require('../provider/lib/log');
-
-
 _onSyncCancel = {
 
     evt: function() {
-        _log.i("HOOK : onSyncCancel");
+        atajo.log.i("HOOK : onSyncCancel");
     }
 
 
