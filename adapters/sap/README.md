@@ -1,4 +1,4 @@
-# NodeJS - SAP Netweaver RFC SDK Bindings for Atajo Provider
+# NodeJS - SAP Netweaver RFC for Atajo Provider
 
 ## Description
 
