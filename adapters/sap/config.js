@@ -1,6 +1,6 @@
 exports.conParams = 
 {
-	DEV : {
+    DEV : {
 	          ashost: '10.0.0.1',
 	          sysid: 'ARQ',
 	          sysnr: '00',
