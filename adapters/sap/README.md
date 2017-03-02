@@ -51,7 +51,7 @@ npm install sapnwrfc
      },
 
     "QAS": {
-         "ashost": "10.0.0.1",
+        "ashost": "10.0.0.1",
         "sysid": "ECQ",
         "sysnr": "00",
         "user": "username",
