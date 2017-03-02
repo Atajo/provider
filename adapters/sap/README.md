@@ -1,4 +1,4 @@
-# SAP Netweaver RFC SDK Bindings for Node.js
+# NodeJS - SAP Netweaver RFC SDK Bindings for Atajo Provider
 
 ## Description
 
@@ -32,3 +32,47 @@ OS X is **not supported** due to the fact that there is no suitable SAP RFC NW S
 ```sh
 npm install sapnwrfc
 ```
+
+## Configuration 
+
+- Create a configuration file in the project ```conf``` directory called ```sap.json``` ( $PROJECT_DIR\conf\sap.json ) 
+- Copy and Paste the following into it and complete the details as per the SAP system(s) your are integrating with
+
+```
+{
+    "DEV": {
+        "ashost": "10.0.0.1",
+        "sysid": "ECQ",
+        "sysnr": "00",
+        "user": "username",
+        "passwd": "password",
+        "client": "100",
+        "lang": "E"  
+     },
+
+    "QAS": {
+         "ashost": "10.0.0.1",
+        "sysid": "ECQ",
+        "sysnr": "00",
+        "user": "username",
+        "passwd": "password",
+        "client": "100",
+        "lang": "E" 
+    },
+
+    "PRD": {
+        "ashost": "10.0.0.2",
+        "sysid": "PRD",
+        "sysnr": "00",
+        "user": "username",
+        "passwd": "password",
+        "client": "100",
+        "lang": "E" 
+    }
+
+}
+
+
+```
+
+
