@@ -1,187 +1,169 @@
-var sapnwrfc = require('sapnwrfc');
-var config   = require('./config'); 
+var atajo = {
+    log: require('../../lib/atajo.log').init('SAP ADAPTER', 'sapAdapter.log')
+}
 
-var conParams = null; 
- 
-
-exports.call = function(bapi, obj, cb, commit, at) { 
-         
-         conParams = config.conParams[GLOBAL.RELEASE]; 
-
-         if(typeof conParams == 'undefined' || conParams == null)
-          {
-            cb({status:0, message:"CONNECTION PARAMETERS NOT SET. CALL INIT FIRST.", result:false}); 
-            return; 
-          }
-
-         if(typeof at == 'undefined') { at = new Date().getTime(); }
-         if(typeof commit == 'undefined') { commit = false; }
+var rfc = null;
+var config = null;
 
 
-         q = { bapi : bapi, obj : obj, cb : cb, commit : commit, at : at }
+var adapter = {
+
+    CONNECTION_PARAMETERS: null,
+
+    init: function() {
+
+        atajo.log.d("INITIALIZING SAP ADAPTER");
+
+        try {
+
+            //rfc = require('node-rfc');
+            rfc = require('sapnwrfc');
 
 
-         var _worker = Object.create(worker); 
+        } catch (e) {
 
-          _worker.process(q); 
+            atajo.log.e("SAP ADAPTER: COULD NOT FIND SAP NODE-RFC.")
+            return;
 
-           
+        }
 
- }
- 
+        try {
 
-var worker = {
-        
-        con : false, 
+            config = require('../../../conf/sap.json');
 
-        process : function(q)
-        {   var that = this; 
+        } catch (e) {
 
-            if(typeof q == 'undefined') { return; }
+            atajo.log.e("SAP ADAPTER: COULD NOT PARSE CONF/SAP.JSON : " + e)
+            return;
 
-            var bapi   = q.bapi; 
-            var obj    = q.obj;
-            var commit = q.commit; 
-            var cb     = q.cb;
-            var at     = (typeof q.at == 'undefined') ? false : q.at; 
+        }
 
-            //if(typeof BAPIS[bapi] == 'undefined') { return; }
 
-      
-                if(at)
-                {
-                  
-                    now = new Date().getTime(); 
-                    delay = parseInt(at) - parseInt(now); 
-                    console.log("CALL TO "+bapi+" DELAYED - CALLING IN "+delay+"ms"); 
-                    if(delay > 0) { setTimeout(function() {  that.call(q); }, delay);  }
-                    else { that.call(q); }
-           
-               }
-               else
-               {
-                    that.call(q); 
-               }
-          },
+        this.CONNECTION_PARAMETERS = config[GLOBAL.RELEASE];
 
-          call : function(q)
-          {    var that = this; 
+        return this;
 
-               var bapi   = q.bapi; 
-               var obj    = q.obj;
-               var commit = q.commit; 
-               var cb     = q.cb;
-               var at     = (typeof q.at == 'undefined') ? false : q.at;
+    },
 
-               console.log("CALLING BAPI "+bapi+" WITH DATA : "+JSON.stringify(obj).substring(0,50)+"..."); 
-               that.con = new sapnwrfc.Connection;
+    query: function(bapi, obj, commit, at) {
 
-               that.con.Open(conParams, function(err)
-                {
-                    if (err)
-                     {  
-                       console.log("CONNECTION ERROR FOR "+bapi+":"+err); 
-                       res.send({status:0, message:"TRANSACTION FAILED. CONNECTION ERROR", result:err}); 
-                       return; 
-                     }
 
-                    var func = that.con.Lookup(bapi);
+        at = at || new Date().getTime();
+        commit = commit || false;
 
-              func.Invoke(obj, function(err, result) 
-               {
-                   if (err) 
-                    { 
-                         console.log("INVOKE ERROR FOR : "+bapi+"    ===>  DROPPING REQUEST ==> "+JSON.stringify(err)); 
-                         
-                         /*  
-                            var sapLog = new sapSchema({
-                            bapi        : bapi
-                          , req         : JSON.stringify(obj) 
-                          , resp        : "INVOKE ERROR : "+err 
-                          , status      : "0" 
-                            });
+        var qry = { bapi: bapi, obj: obj, commit: commit, at: at }
 
-                          sapLog.save(); 
 
-                         */ 
+        var _worker = Object.create(adapter.worker);
 
-                        //  that.con.Close(); 
-                          cb({status:0, message:"TRANSACTION FAILED. INVOKE ERROR", result:err}); 
-                          return; 
+        return _worker.process(qry);
+
+
+
+    },
+
+
+    worker: {
+
+        client: null,
+
+        process: function(q) {
+            var that = this;
+
+            return new Promise(function(resolve, reject) {
+
+                if (!q) {
+                    return reject({ status: 0, message: "INVALID REQUEST", result: "" });
+                } else if (!q.bapi) {
+                    return reject({ status: 0, message: "INVALID REQUEST - NO BAPI NAME SET", result: "" });
+                } else if (!q.obj) {
+                    return reject({ status: 0, message: "INVALID REQUEST - NO BAPI DATA SET", result: "" });
+                }
+
+                var bapi = q.bapi;
+                var obj = q.obj;
+                var commit = q.commit;
+                that.client = new rfc.Connection;
+                //atajo.log.d("CONNECTION PARAMETERS ARE : " + JSON.stringify(adapter.CONNECTION_PARAMETERS));
+                atajo.log.d("CALLING BAPI " + bapi + " (COMMIT : " + commit + ") WITH DATA : " + JSON.stringify(obj).substring(0, 100) + '...');
+
+                that.client.Open(adapter.CONNECTION_PARAMETERS, function(err) {
+                    //that.client.connect(function(err) {
+                    if (err) { // check for login/connection errors
+                        atajo.log.e("SAP CLIENT CONNECT ERROR : " + err);
+                        return reject({ status: 0, message: "ERROR CONNECTING TO SAP BACKEND @ " + conParams.ashost, result: err });
                     }
 
-/*
-                   var sapLog = new sapSchema({
-                            bapi        : bapi
-                          , req         : JSON.stringify(obj) 
-                          , resp        : JSON.stringify(result) 
-                          , status      : "1"
+                    var func = that.client.Lookup(bapi);
+
+                    func.Invoke(obj, function(err, result) {
+                        if (err) { // check for errors (e.g. wrong parameters)
+                            atajo.log.e("SAP CLIENT INVOKE ERROR : " + JSON.stringify(err) + "/" + JSON.stringify(result));
+
+                            atajo.log.e(JSON.stringify(obj));
+                            return reject({ status: 0, message: "ERROR INVOKING RFC FOR " + bapi, result: err });
+                        }
+
+                        atajo.log.d('====== RESULT FOR BAPI ' + bapi + ' IS ==========================');
+                        atajo.log.d(JSON.stringify(result).substring(0, 100) + '...');
+                        atajo.log.d('================================================================================');
+
+                        if (commit) {
+                            atajo.log.d("TRANSACTION COMMIT");
+                            bapi = "BAPI_TRANSACTION_COMMIT";
+                            obj = { WAIT: 'X' }
+
+                            func = that.client.Lookup(bapi);
+                            func.Invoke(obj, function(err, commitResult) {
+
+                                if (err) {
+                                    atajo.log.e("SAP CLIENT [COMMIT] INVOKE ERROR : " + err);
+                                    reject({ status: 0, message: "COMMIT FAILED : " + err, result: result, commitResult: false });
+                                } else {
+                                    resolve({ status: 1, message: "COMMIT SUCCESS", result: result, commitresult: commitResult });
+                                }
+
+                            });
+                        } else {
+                            resolve({ status: 1, message: "TRANSACTION SUCCESS", result: result });
+                        }
+
                     });
 
-                    sapLog.save(); 
-*/ 
-           console.log('====== RESULT FOR BAPI '+bapi+' IS ================'); 
-           console.log(JSON.stringify(result).substring(0,100)+'...'); 
-           console.log('==================================================='); 
 
-           if(commit)
-            {
-                 console.log("TRANSACTION COMMIT"); 
-                 cmd = "BAPI_TRANSACTION_COMMIT";
-                 obj = {  WAIT:'X' } 
-                 func = that.con.Lookup(cmd);
-
-              func.Invoke(obj, function(err, commitResult) {
-                if (err) 
-                 {  
-                   console.log(err);
-                  // that.con.Close();  
-                   cb({status:0, message:"COMMIT FAILED"});    
-                 }
-                else 
-                 { 
-                   cb({status:1, message:"COMMIT SUCCESS", result:result, commitresult:commitResult}); 
-                 } 
-
-              //   that.con.Close();  
-
-              }); 
-             }
-            else
-             {
-                console.log("SENDING RESULT"); 
-              //  that.con.Close(); 
-                cb({status:1, message:"TRANSACTION SUCCESS", result:result});  
-                             
-             }
+                });
 
 
 
-         }); 
 
 
 
-       });
+            });
 
 
 
-          }, 
-    
+            /*
+                    if (at) {
+
+                        now = new Date().getTime();
+                        delay = parseInt(at) - parseInt(now);
+                        atajo.log.d("CALL TO " + bapi + " DELAYED - CALLING IN " + delay + "ms");
+                        if (delay > 0) { setTimeout(function() { that.call(q); }, delay); } else { that.call(q); }
+
+                    } else {
+                        that.call(q);
+                    }
+            */
+        },
 
 
 
-    
-   
-
-
-  
 
 
 
-        
 
+    }
 
-   }
+}
 
-
- 
+module.exports = adapter;

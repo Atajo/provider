@@ -1,5 +1,4 @@
 var nodemailer = require('nodemailer');
-var sesTransport = require('nodemailer-ses-transport');
 var config = require('../../../conf/config.json');
 var AWS = require('aws-sdk');
 var atajo = { log: require('../../lib/atajo.log').init('ADAPTER:MAIL', 'mailAdapter.log') };
@@ -20,11 +19,13 @@ module.exports = {
 
 
         var ses = new AWS.SES(config.AWS.SES);
-        var transporter = nodemailer.createTransport(sesTransport({ ses: ses }));
+        var transport = nodemailer.createTransport({ SES: ses });
 
         atajo.log.d("SENDING MAIL WITH OPTIONS : " + JSON.stringify(options));
 
-        transporter.sendMail(options, function(error, info) {
+
+
+        transport.sendMail(options, function(error, info) {
             if (error) {
                 atajo.log.d("MAIL ERROR : " + error);
                 cb(false);
