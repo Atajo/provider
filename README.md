@@ -34,7 +34,7 @@ The Atajo provider is a Git submodule that serves as the back end connector and 
 ### Installing and Running the Atajo Development Client
 1. Download and Install the Atajo dev client application to your Android or Apple iPhone from the following link 
 
-https://store.atajo.co.za
+https://store.atajo.co.za/za.co.atajo.dev.client.aui
 
 2. Run the app
 3. Choose ```dev-1-0-1.core.atajo.co.za```
