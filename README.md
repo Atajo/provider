@@ -12,6 +12,10 @@ The Atajo provider is a Git submodule that serves as the back end connector and 
 
 ```git submodule add https://github.com/Atajo/provider```
 
+2a. If you would like to use Ionic2 / Typescript run this extra step (to switch submodule to typescript branch): 
+    
+    cd provider; git checkout typescript; cd ..;
+
 3. Run the provider for the first time : 
 
 ```node provider/start.js DEV```
@@ -34,7 +38,12 @@ The Atajo provider is a Git submodule that serves as the back end connector and 
 ### Installing and Running the Atajo Development Client
 1. Download and Install the Atajo dev client application to your Android or Apple iPhone from the following link 
 
-https://store.atajo.co.za/za.co.atajo.dev.client.aui
+https://store.atajo.co.za/za.co.atajo.dev.client.aui (Ionic 1)
+
+OR
+
+https://store.atajo.co.za/za.co.atajo.dev.client  (Ionic 2) 
+
 
 2. Run the app
 3. Choose ```dev-1-0-1.core.atajo.co.za```
