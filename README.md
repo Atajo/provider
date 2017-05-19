@@ -12,7 +12,7 @@ The Atajo provider is a Git submodule that serves as the back end connector and 
 
 ```git submodule add https://github.com/Atajo/provider```
 
-    2a. If you would like to use Ionic2 / Typescript run this extra step (to switch submodule to typescript branch): 
+2a. If you would like to use Ionic2 / Typescript run this extra step (to switch submodule to typescript branch): 
     
     ```cd provider; git checkout typescript; cd ..;```
 
