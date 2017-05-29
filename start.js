@@ -2,6 +2,8 @@ var os = require('os');
 var fork = require('child_process').fork;
 var path = require('path');
 
+var HANDLERS = [];
+
 require('./lib/atajo.env').init(function() {
 
     require('./lib/atajo.provider').init(function(atajo) {
@@ -29,7 +31,6 @@ require('./lib/atajo.env').init(function() {
 
                 var len = os.cpus().length;
 
-                atajo.log.d("SPAWINING " + len + " IO INTERFACES");
 
                 for (var i = 0; i < len; i++) {
 
@@ -45,11 +46,15 @@ require('./lib/atajo.env').init(function() {
 
                     });
 
-                    //SEND REQUEST TO PROCESS
-                    HANDLER.process.send({ processId: HANDLER.processId, release: HANDLER.release, uri: URI });
+                    HANDLERS.push(HANDLER);
+
 
 
                 }
+
+
+                initNextHandler();
+
 
 
             });
@@ -58,3 +63,22 @@ require('./lib/atajo.env').init(function() {
 
     });
 });
+
+
+function initNextHandler() {
+
+    var HANDLER = HANDLERS.pop();
+    if (HANDLER && typeof HANDLER != 'undefined') {
+        //SEND REQUEST TO PROCESS
+        setTimeout(function() {
+            HANDLER.process.send({ processId: HANDLER.processId, release: HANDLER.release, uri: URI });
+            initNextHandler()
+        }, 1000);
+    } else {
+        atajo.log.i("ALL HANDLERS STARTED");
+    }
+
+
+
+
+}
