@@ -73,7 +73,7 @@ function initNextHandler() {
         setTimeout(function() {
             HANDLER.process.send({ processId: HANDLER.processId, release: HANDLER.release, uri: URI });
             initNextHandler()
-        }, 1000);
+        }, 100);
     } else {
         atajo.log.i("ALL HANDLERS STARTED");
     }
