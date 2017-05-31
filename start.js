@@ -25,12 +25,11 @@ require('./lib/atajo.env').init(function() {
 
                 atajo.postInit(RELEASE);
 
-                URI = SERVER.protocol + '://' + SERVER.host + ':' + SERVER.port;
+                URI = SERVER.protocol + '://' + SERVER.host;
 
                 atajo.log.d("CONNECTING TO : " + URI + " (" + RELEASE + ")");
 
-                var len = os.cpus().length;
-
+                var len = 2;
 
                 for (var i = 0; i < len; i++) {
 
@@ -67,13 +66,16 @@ require('./lib/atajo.env').init(function() {
 
 function initNextHandler() {
 
+    var i = HANDLERS.length - 1;
     var HANDLER = HANDLERS.pop();
     if (HANDLER && typeof HANDLER != 'undefined') {
         //SEND REQUEST TO PROCESS
+        //var PROVIDER_URI = URI + '/' + (30000 + i);
+        // atajo.log.d("URI IS " + PROVIDER_URI);
         setTimeout(function() {
             HANDLER.process.send({ processId: HANDLER.processId, release: HANDLER.release, uri: URI });
             initNextHandler()
-        }, 100);
+        }, 2000);
     } else {
         atajo.log.i("ALL HANDLERS STARTED");
     }
