@@ -51,7 +51,6 @@ require('./lib/atajo.env').init(function() {
 
                 }
 
-
                 initNextHandler();
 
 
