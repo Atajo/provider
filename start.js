@@ -2,7 +2,12 @@ var os = require('os');
 var fork = require('child_process').fork;
 var path = require('path');
 
-var HANDLERS = [];
+var NODES = [];
+var currentNodeIdx = 0;
+var RELEASE = null;
+var SERVER = null;
+var URI = null;
+
 
 require('./lib/atajo.env').init(function() {
 
@@ -29,29 +34,19 @@ require('./lib/atajo.env').init(function() {
 
                 atajo.log.d("CONNECTING TO : " + URI + " (" + RELEASE + ")");
 
-                var len = 2;
+                var len = os.cpus().length;
 
                 for (var i = 0; i < len; i++) {
 
 
-                    var HANDLER = {
-                        process: fork(path.join(__dirname, './', 'lib', 'atajo.io.js')),
-                        processId: i,
-                        release: RELEASE
-                    }
-
-                    HANDLER.process.on('message', function(msg) {
-
-
-                    });
-
-                    HANDLERS.push(HANDLER);
+                    var NODE = createNode(i);
+                    NODES.push(NODE);
 
 
 
                 }
 
-                initNextHandler();
+                initNextNode();
 
 
 
@@ -62,24 +57,81 @@ require('./lib/atajo.env').init(function() {
     });
 });
 
+function createNode(i) {
 
-function initNextHandler() {
+    var NODE = {
+        process: fork(path.join(__dirname, './', 'lib', 'atajo.io.js')),
+        processId: i,
+        release: RELEASE
+    }
 
-    var i = HANDLERS.length - 1;
-    var HANDLER = HANDLERS.pop();
-    if (HANDLER && typeof HANDLER != 'undefined') {
-        //SEND REQUEST TO PROCESS
-        //var PROVIDER_URI = URI + '/' + (30000 + i);
-        // atajo.log.d("URI IS " + PROVIDER_URI);
+    NODE.process.on('message', function(msg) {
+
+        //atajo.log.i("GOT MESSAGE FROM NODE : ");
+        //atajo.log.i(msg);
+
+
+    });
+
+    return NODE;
+
+
+}
+
+function startNode(NODE) {
+
+    NODE.process.send({ action: 'start', processId: NODE.processId, release: NODE.release, uri: URI });
+
+}
+
+
+function initNextNode(idx) {
+
+    idx = idx || currentNodeIdx;
+
+    var NODE = NODES[idx];
+    if (NODE && typeof NODE != 'undefined') {
+
         setTimeout(function() {
-            HANDLER.process.send({ processId: HANDLER.processId, release: HANDLER.release, uri: URI });
-            initNextHandler()
+            //atajo.log.d("STARTING NODE " + NODE.processId);
+            startNode(NODE);
+            currentNodeIdx++;
+            initNextNode();
+
         }, 2000);
     } else {
-        atajo.log.i("ALL HANDLERS STARTED");
+        atajo.log.i("ALL (" + NODES.length + ") NODES STARTED");
+        startNodeMonitor();
     }
 
 
+}
 
+
+var monitorInterval = null;
+
+function startNodeMonitor() {
+
+    clearInterval(monitorInterval);
+    monitorInterval = setInterval(function() {
+
+        // atajo.log.d("SENDING ALIVE TO NODES ");
+
+        for (var i in NODES) {
+            var NODE = NODES[i];
+            try {
+                NODE.process.send({ action: 'alive' });
+            } catch (e) {
+                atajo.log.w("NODE " + i + " NOT REACHABLE. RESTARTING");
+                var NODE = createNode(i);
+                NODES[i] = NODE;
+                startNode(NODE);
+            }
+
+        }
+
+
+
+    }, 10000);
 
 }
