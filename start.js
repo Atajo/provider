@@ -80,7 +80,9 @@ function createNode(i) {
 
 function startNode(NODE) {
 
-    NODE.process.send({ action: 'start', processId: NODE.processId, release: NODE.release, uri: URI });
+    var uri = URI + '/PROVIDER_' + NODE.processId;
+    atajo.log.d("CONNECTING NODE " + NODE.processId + " TO " + uri);
+    NODE.process.send({ action: 'start', processId: NODE.processId, release: NODE.release, uri: uri });
 
 }
 
