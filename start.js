@@ -31,10 +31,9 @@ require('./lib/atajo.env').init(function() {
                 atajo.postInit(RELEASE);
 
                 URI = SERVER.protocol + '://' + SERVER.host;
+                var len = __RELEASE__ == 'PRD' ? os.cpus().length : 1;
 
-                atajo.log.d("CONNECTING TO : " + URI + " (" + RELEASE + ")");
-
-                var len = os.cpus().length;
+                atajo.log.d("CONNECTING TO : " + URI + " (" + RELEASE + ") WITH " + len + " CONNECTIONS");
 
                 for (var i = 0; i < len; i++) {
 
