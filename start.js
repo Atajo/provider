@@ -32,7 +32,7 @@ require('./lib/atajo.env').init(function() {
 
                 URI = SERVER.protocol + '://' + SERVER.host;
                 var len = __RELEASE__ == 'PRD' ? os.cpus().length : 1;
-                len = (len > 8) ? 8 : len; 
+                len = (len > 4) ? 4 : len; 
 
                 atajo.log.d("CONNECTING TO : " + URI + " (" + RELEASE + ") WITH " + len + " CONNECTIONS");
 
