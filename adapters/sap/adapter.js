@@ -2,24 +2,17 @@ var atajo = {
     log: require('../../lib/atajo.log').init('SAP ADAPTER', 'sapAdapter.log')
 }
 
-var rfc = null;
-var config = null;
+let SAP = {
 
+    client: null,
+    rfc: null,
 
-class SAPAdapter {
+    query: function(bapi, obj, commit, at) {
 
-
-    constructor() {
-
-        atajo.log.d("INITIALIZING SAP ADAPTER");
 
         try {
 
-            //rfc = require('node-rfc');
-            let rfc = require('sapnwrfc');
-            this.client = new rfc.Connection;
-
-
+            this.rfc = require('sapnwrfc');
 
 
         } catch (e) {
@@ -28,6 +21,23 @@ class SAPAdapter {
             return;
 
         }
+
+        let sap = new SAPAdapter(this.rfc);
+        return sap.query(bapi, obj, commit, at);
+
+    }
+
+
+}
+
+
+class SAPAdapter {
+
+
+    constructor(rfc) {
+
+        atajo.log.d("INITIALIZING SAP ADAPTER");
+        this.client = new rfc.Connection;
 
         try {
 
@@ -41,9 +51,6 @@ class SAPAdapter {
             return;
 
         }
-
-
-
     }
 
     query(bapi, obj, commit, at) {
@@ -82,8 +89,16 @@ class SAPAdapter {
                     return reject({ status: 0, message: "ERROR CONNECTING TO SAP BACKEND @ " + conParams.ashost, result: err });
                 }
 
+                atajo.log.d("CLIENT IS OPEN - LOOKING UP " + bapi);
+
                 var func = that.client.Lookup(bapi);
+
+                atajo.log.d("GOT FUNC");
+
                 func.Invoke(obj, (err, result) => {
+
+                    atajo.log.d("FUNC RETURNED");
+
                     if (err) { // check for errors (e.g. wrong parameters)
                         atajo.log.e("SAP CLIENT INVOKE ERROR : " + JSON.stringify(err) + "/" + JSON.stringify(result));
 
@@ -128,4 +143,4 @@ class SAPAdapter {
 }
 
 
-module.exports = new SAPAdapter();
+module.exports = SAP;
