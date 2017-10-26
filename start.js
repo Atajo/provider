@@ -22,7 +22,10 @@ require('./lib/atajo.env').init(function() {
                 URI = SERVER.protocol + '://' + SERVER.host + ':' + SERVER.port;
 
                 atajo.log.d("CONNECTING TO : " + URI + " (" + RELEASE + ")");
-
+                
+                //set node environment variable to call from other provider scripts.
+                process.env.NODE_ENV = RELEASE;
+                
                 atajo.io.init(RELEASE, URI);
 
 
