@@ -20,7 +20,7 @@ _mongodb = {
         var _ = this;
 
         if (_.INIT) {
-            return;
+            CB(true);
         }
 
         _log.d("            MONGODB ADAPTER INIT > ");
@@ -55,6 +55,7 @@ _mongodb = {
 
             if (err) {
                 _log.e("COULD NOT READ SCHEMAS. MONGODB INIT FAILED : " + err);
+                CB(false);
                 return;
             }
 
@@ -74,7 +75,7 @@ _mongodb = {
 
             if (_.SCHEMAS.length == 0) {
                 _log.i("NO SCHEMAS DEFINED. NOT CONNECTING DB");
-                return;
+                CB(false); 
             }
 
             //INIT THE SCHEMAS
