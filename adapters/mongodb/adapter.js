@@ -13,10 +13,15 @@ _mongodb = {
     CONNECTED: false,
     LOCAL: false,
     CONF: null,
+    INIT: false,
 
 
-    init: function(CB) {
+    init: function (CB) {
         var _ = this;
+
+        if (_.INIT) {
+            return;
+        }
 
         _log.d("            MONGODB ADAPTER INIT > ");
 
@@ -46,7 +51,7 @@ _mongodb = {
         var SCHEMA_DIR = _.CONF.schemas;
         _log.d("LOADING SCHEMAS FROM " + SCHEMA_DIR);
 
-        fs.readdir(SCHEMA_DIR, function(err, files) {
+        fs.readdir(SCHEMA_DIR, function (err, files) {
 
             if (err) {
                 _log.e("COULD NOT READ SCHEMAS. MONGODB INIT FAILED : " + err);
@@ -73,6 +78,7 @@ _mongodb = {
             }
 
             //INIT THE SCHEMAS
+
             for (var schema in _.SCHEMAS) {
 
                 var schemaName = schema;
@@ -95,7 +101,7 @@ _mongodb = {
     },
 
 
-    connect: function(CB) {
+    connect: function (CB) {
         var _ = this;
 
         var options = {
@@ -125,6 +131,8 @@ _mongodb = {
 
             _.CONNECTED = true;
 
+            _.INIT = true;
+
             _log.d("MONGO CONNECTED TO " + mongoURL);
             CB(_.SCHEMAS);
         });
@@ -132,8 +140,8 @@ _mongodb = {
         mongoose.connect(mongoURL, options);
         //mongoose.connect(mongoURL);
 
-        process.on('SIGINT', function() {
-            _.DB.close(function() {
+        process.on('SIGINT', function () {
+            _.DB.close(function () {
                 _log.e('<<<<<<<<<<<<<<<<<<<  MONGO DISCONNECTED  >>>>>>>>>>>>>>>>>>>');
                 process.exit(0);
             });
@@ -143,7 +151,7 @@ _mongodb = {
 
     },
 
-    err: function(msg) {
+    err: function (msg) {
 
         _log.e("MONGO ERROR : " + msg);
         _log.e("COULD NOT CONNECT TO MONGO -> STOPPING");
