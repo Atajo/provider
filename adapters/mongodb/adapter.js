@@ -21,6 +21,7 @@ _mongodb = {
 
         if (_.INIT) {
             CB(true);
+            return; 
         }
 
         _log.d("            MONGODB ADAPTER INIT > ");
